@@ -1,32 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:password_generator/const.dart';
+import 'package:password_generator/password_section/controller.dart';
 
-class GeneratorPage extends StatefulWidget {
-  const GeneratorPage({super.key});
+class GeneratorPage extends StatelessWidget {
+   GeneratorPage({super.key});
 
-  @override
-  State<GeneratorPage> createState() => _GeneratorPageState();
-}
-
-class _GeneratorPageState extends State<GeneratorPage> {
-  int passwordLength = 4;
-  bool includeUpperCase = true;
-  bool includeLowerCase = true;
-  bool includeNumbers = true;
-  bool includeSpecialChars = true;
-  late List<bool> checkList;
-
-  @override
-  void initState() {
-    checkList = [
-      includeUpperCase,
-      includeLowerCase,
-      includeNumbers,
-      includeSpecialChars
-    ];
-    // TODO: implement initState
-    super.initState();
-  }
+  final HomePageController controller = Get.put(HomePageController());
 
   @override
   Widget build(BuildContext context) {
@@ -75,22 +55,33 @@ class _GeneratorPageState extends State<GeneratorPage> {
                     ],
                   ),
                   spaceForHeight10,
-                  Container(
-                    width: double.infinity,
-                    height: 70,
-                    color: kColor,
-                    child: const Center(
-                      child: Text(
-                        'Password will be displayed here',
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 142, 141, 141)),
-                      ),
+                  Obx(
+                    () => Container(
+                      width: double.infinity,
+                      height: 70,
+                      color: kColor,
+                      child: Center(
+                          child: controller.password.value == ''
+                              ? const Text(
+                                  'Password will be displayed here',
+                                  style: TextStyle(
+                                      color:
+                                          Color.fromARGB(255, 142, 141, 141)),
+                                )
+                              : Text(controller.password.value,
+                                  style: const TextStyle(
+                                    letterSpacing: 1.5,
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold))),
                     ),
                   ),
                   spaceForHeight10,
-                  Text(
-                    'Password length : $passwordLength',
-                    style: const TextStyle(color: Colors.grey, fontSize: 16),
+                  Obx(
+                    () => Text(
+                      'Password length : ${controller.count.value}',
+                      style: const TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
                   ),
                   spaceForHeight10,
                   Container(
@@ -106,17 +97,16 @@ class _GeneratorPageState extends State<GeneratorPage> {
                           style: textStyle,
                         ),
                         Expanded(
-                          child: Slider(
-                            value: passwordLength.toDouble(),
-                            onChanged: (double value) {
-                              setState(() {
-                                passwordLength = value.toInt();
-                              });
-                            },
-                            min: 4,
-                            max: 20,
-                            divisions: 24,
-                            label: passwordLength.toString(),
+                          child: Obx(
+                            () => Slider(
+                                value: controller.count.value.toDouble(),
+                                onChanged: (double value) {
+                                  controller.onChangeSlider(value.toInt());
+                                },
+                                min: 4,
+                                max: 20,
+                                divisions: 24,
+                                label: controller.count.value.toString()),
                           ),
                         ),
                         const Text(
@@ -135,14 +125,14 @@ class _GeneratorPageState extends State<GeneratorPage> {
                   Column(
                     children: List.generate(
                       4,
-                      (index) => CheckBoxWidget(
-                        value: checkList[index],
-                        onChanged: (value) {
-                          setState(() {
-                            checkList[index] = value!;
-                          });
-                        },
-                        title: listCheckBox[index],
+                      (index) => Obx(
+                        () => CheckBoxWidget(
+                          value: controller.checkList[index],
+                          onChanged: (value) {
+                            controller.onChangeCheck(value!, index);
+                          },
+                          title: listCheckBox[index],
+                        ),
                       ),
                     ),
                   ),
@@ -150,18 +140,23 @@ class _GeneratorPageState extends State<GeneratorPage> {
                   Row(
                     children: [
                       Expanded(
-                          flex: 5,
-                          child: ButtonContainer(
-                              text: 'GENERATE PASSWORD',
-                              onTap: () {},
-                              color: const Color.fromARGB(255, 4, 81, 144),),),
-                              spaceForWidth10,
+                        flex: 5,
+                        child: ButtonContainer(
+                          text: 'GENERATE PASSWORD',
+                          onTap: () {
+                            controller.onGeneratePassword();
+                          },
+                          color: const Color.fromARGB(255, 4, 81, 144),
+                        ),
+                      ),
+                      spaceForWidth10,
                       Expanded(
                         flex: 2,
                         child: ButtonContainer(
-                            text: 'COPY',
-                            onTap: () {},
-                            color: const Color.fromARGB(255, 87, 90, 90),),
+                          text: 'COPY',
+                          onTap: () {},
+                          color: const Color.fromARGB(255, 87, 90, 90),
+                        ),
                       ),
                     ],
                   )
@@ -191,7 +186,7 @@ class ButtonContainer extends StatelessWidget {
       decoration:
           BoxDecoration(borderRadius: BorderRadius.circular(6), color: color),
       child: TextButton(
-        onPressed: () {},
+        onPressed: onTap,
         child: Text(
           text,
           style: const TextStyle(color: Colors.white, fontSize: 16),
