@@ -36,7 +36,7 @@ class HomePageController extends GetxController {
       for (int i = 0; i < count.value; i++) {
         gPassword += chars[random.nextInt(chars.length)];
       }
-      password(gPassword);
+      password(gPassword); 
     } else {
       Get.showSnackbar(
         const GetSnackBar(

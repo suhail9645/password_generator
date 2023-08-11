@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:password_generator/const.dart';
 import 'package:password_generator/password_section/controller.dart';
+import 'widget/custom_widget.dart';
 
 class GeneratorPage extends StatelessWidget {
-   GeneratorPage({super.key});
+  GeneratorPage({super.key});
 
   final HomePageController controller = Get.put(HomePageController());
 
@@ -70,7 +72,7 @@ class GeneratorPage extends StatelessWidget {
                                 )
                               : Text(controller.password.value,
                                   style: const TextStyle(
-                                    letterSpacing: 1.5,
+                                      letterSpacing: 1.5,
                                       color: Colors.white,
                                       fontSize: 25,
                                       fontWeight: FontWeight.bold))),
@@ -154,7 +156,16 @@ class GeneratorPage extends StatelessWidget {
                         flex: 2,
                         child: ButtonContainer(
                           text: 'COPY',
-                          onTap: () {},
+                          onTap: () {
+                            Clipboard.setData(
+                                ClipboardData(text: controller.password.value));
+                            Get.showSnackbar(
+                              const GetSnackBar(
+                                message: 'Password Copied',
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          },
                           color: const Color.fromARGB(255, 87, 90, 90),
                         ),
                       ),
@@ -169,183 +180,3 @@ class GeneratorPage extends StatelessWidget {
     );
   }
 }
-
-class ButtonContainer extends StatelessWidget {
-  const ButtonContainer({
-    super.key,
-    required this.text,
-    required this.onTap,
-    required this.color,
-  });
-  final String text;
-  final Function() onTap;
-  final Color color;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration:
-          BoxDecoration(borderRadius: BorderRadius.circular(6), color: color),
-      child: TextButton(
-        onPressed: onTap,
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      ),
-    );
-  }
-}
-
-class CheckBoxWidget extends StatelessWidget {
-  const CheckBoxWidget(
-      {super.key,
-      required this.value,
-      required this.onChanged,
-      required this.title});
-  final bool value;
-  final Function(bool? value) onChanged;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    const textStyle = TextStyle(
-        color: Color.fromARGB(255, 169, 165, 165),
-        fontSize: 18,
-        fontWeight: FontWeight.bold);
-    return CheckboxListTile(
-      title: Text(
-        title,
-        style: textStyle,
-      ),
-      value: value,
-      onChanged: onChanged,
-    );
-  }
-}
-
-// import 'dart:math';
-
-// import 'package:flutter/material.dart';
-
-// class RandomPasswordGeneratorPage extends StatefulWidget {
-//   @override
-//   _RandomPasswordGeneratorPageState createState() =>
-//       _RandomPasswordGeneratorPageState();
-// }
-
-// class _RandomPasswordGeneratorPageState
-//     extends State<RandomPasswordGeneratorPage> {
-//   bool _includeUpperCase = true;
-//   bool _includeLowerCase = true;
-//   bool _includeNumbers = true;
-//   bool _includeSpecialChars = true;
-//   int _passwordLength = 12;
-//   final TextEditingController _passwordController = TextEditingController();
-
-//   String _generatePassword() {
-//     String chars = '';
-//     if (_includeUpperCase) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-//     if (_includeLowerCase) chars += 'abcdefghijklmnopqrstuvwxyz';
-//     if (_includeNumbers) chars += '0123456789';
-//     if (_includeSpecialChars) chars += '!@#\$%^&*()_-+=<>?/{}[]|~';
-
-//     String password = '';
-//     final random = Random();
-//     for (int i = 0; i < _passwordLength; i++) {
-//       password += chars[random.nextInt(chars.length)];
-//     }
-//     return password;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Random Password Generator'),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: <Widget>[
-//             CheckboxListTile(
-//               title: Text('Include Upper Case'),
-//               value: _includeUpperCase,
-//               onChanged: (bool? value) {
-//                 setState(() {
-//                   _includeUpperCase = value!;
-//                 });
-//               },
-//             ),
-//             CheckboxListTile(
-//               title: Text('Include Lower Case'),
-//               value: _includeLowerCase,
-//               onChanged: (bool? value) {
-//                 setState(() {
-//                   _includeLowerCase = value!;
-//                 });
-//               },
-//             ),
-//             CheckboxListTile(
-//               title: Text('Include Numbers'),
-//               value: _includeNumbers,
-//               onChanged: (bool? value) {
-//                 setState(() {
-//                   _includeNumbers = value!;
-//                 });
-//               },
-//             ),
-//             CheckboxListTile(
-//               title: Text('Include Special Characters'),
-//               value: _includeSpecialChars,
-//               onChanged: (bool? value) {
-//                 setState(() {
-//                   _includeSpecialChars = value!;
-//                 });
-//               },
-//             ),
-//             Padding(
-//               padding: EdgeInsets.all(16.0),
-//               child: Row(
-//                 children: [
-//                   Text('Password Length: '),
-//                   SizedBox(width: 10),
-//                   Expanded(
-//                     child: Slider(
-//                       value: _passwordLength.toDouble(),
-//                       onChanged: (double value) {
-//                         setState(() {
-//                           _passwordLength = value.toInt();
-//                         });
-//                       },
-//                       min: 6,
-//                       max: 30,
-//                       divisions: 24,
-//                       label: _passwordLength.toString(),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             ElevatedButton(
-//               onPressed: () {
-//                 String password = _generatePassword();
-//                 setState(() {
-//                   _passwordController.text = password;
-//                 });
-//               },
-//               child: Text('Generate Password'),
-//             ),
-//             SizedBox(height: 20),
-//             if (_passwordController.text.isNotEmpty)
-//               SelectableText(
-//                 _passwordController.text,
-//                 style: TextStyle(fontSize: 20),
-//               ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
